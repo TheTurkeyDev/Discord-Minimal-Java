@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation('org.java-websocket:Java-WebSocket:1.5.2')
+    implementation('com.google.code.gson:gson:2.9.0')
+}
+
+publishing {
+    tasks.publish.dependsOn 'build'
+    publications {
+        mavenJava(MavenPublication) {
+            version = '0.1'
+            from components.java
+        }
+    }
+
+    repositories {
+        if (project.hasProperty('mavendir')) {
+            maven { url mavendir }
+        }
+        else{
+            logger.error('Failed to find maven directory')
+        }
+    }
+}
