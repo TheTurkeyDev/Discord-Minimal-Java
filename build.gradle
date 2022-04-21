@@ -3,6 +3,8 @@ plugins {
     id 'maven-publish'
 }
 
+group = "dev.theturkey.discord-minimal-java"
+
 repositories {
     mavenCentral()
 }
