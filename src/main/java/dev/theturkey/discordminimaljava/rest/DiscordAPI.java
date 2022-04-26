@@ -309,7 +309,7 @@ public class DiscordAPI
 		jsonObject.addProperty("communication_disabled_until", LocalDateTime.now().plusSeconds(durationSec).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")));
 
 		DiscordAPIResponse<Void> apiResp = new DiscordAPIResponse<>();
-		String url = "/guilds/" + guildId + "/members/" + userId;
+		String url = "guilds/" + guildId + "/members/" + userId;
 		sendRestCall(url, url, "PATCH", GSON.toJson(jsonObject)).onResponse((code, body) ->
 				apiResp.resolveCall(getEmptyResponseObj(code, body)));
 
@@ -331,7 +331,7 @@ public class DiscordAPI
 	public static DiscordAPIResponse<DiscordMessage> interactionEdit(long id, String token, DiscordEditWebhookMessage edit)
 	{
 		DiscordAPIResponse<DiscordMessage> apiResp = new DiscordAPIResponse<>();
-		String url = "/webhooks/" + id + "/" + token + "/messages/@original";
+		String url = "webhooks/" + id + "/" + token + "/messages/@original";
 		sendRestCall(url + "/edit", url, "PATCH", GSON.toJson(edit)).onResponse((code, body) ->
 				apiResp.resolveCall(getResponseObj(code, body, DiscordMessage.class)));
 		return apiResp;

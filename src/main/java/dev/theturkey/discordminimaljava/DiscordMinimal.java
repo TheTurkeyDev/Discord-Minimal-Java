@@ -90,6 +90,9 @@ public class DiscordMinimal
 			case "RESUMED" ->
 			{
 			}
+			case "MESSAGE_UPDATE" ->
+			{
+			}
 			default -> System.out.println("UNKNOWN EVENT: " + payload.t);
 		}
 	}

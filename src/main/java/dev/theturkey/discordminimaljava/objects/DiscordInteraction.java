@@ -94,7 +94,7 @@ public class DiscordInteraction
 
 	public DiscordAPIResponse<DiscordMessage> editResponse(DiscordEditWebhookMessage editMessage)
 	{
-		return DiscordAPI.interactionEdit(this.id, this.token, editMessage);
+		return DiscordAPI.interactionEdit(this.applicationId, this.token, editMessage);
 	}
 
 	public void deferUpdate()
