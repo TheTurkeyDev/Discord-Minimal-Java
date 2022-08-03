@@ -27,6 +27,8 @@ public class DiscordWebSocket extends WebSocketClient
 
 	private final DiscordMinimal dm;
 
+	private long lastACK = -1;
+
 	public DiscordWebSocket(DiscordMinimal dm, String url, long intents, int shardId, int numShards) throws URISyntaxException
 	{
 		super(new URI(url));
@@ -68,7 +70,7 @@ public class DiscordWebSocket extends WebSocketClient
 					this.send(DiscordAPI.GSON.toJson(new IdentifyPayload(this.intents, shardId, this.numShards)));
 				break;
 			case 11:
-				//Heartbeat ACK
+				lastACK = System.currentTimeMillis();
 				break;
 			default:
 				System.out.println("[Discord] Unknown OP Code: " + message.op);
@@ -85,10 +87,13 @@ public class DiscordWebSocket extends WebSocketClient
 			@Override
 			public void run()
 			{
+				if(lastACK != -1 && lastACK - System.currentTimeMillis() > 1000 * 60 * 10)
+					System.out.println("Missed ACK? > 10 minutes ago");
 				DiscordWebSocket.this.send(DiscordAPI.GSON.toJson(new HeartBeatPayload(seq)));
 			}
 		};
-		heartBeatTimer.schedule(heartBeat, heartbeatDelay);
+		long delay = (long) Math.floor(heartbeatDelay * Math.random());
+		heartBeatTimer.schedule(heartBeat, delay, heartbeatDelay);
 	}
 
 	@Override
@@ -100,9 +105,14 @@ public class DiscordWebSocket extends WebSocketClient
 		if(reason.equals("Clientside closed!"))
 			return;
 
+		if(code < 4000){
+			this.initReconnect();
+			return;
+		}
+
 		switch(code)
 		{
-			case -1, 1000, 1001, 1006, 4000, 4008, 4009 -> this.initReconnect();
+			case 4000, 4008, 4009 -> this.initReconnect();
 			default ->
 			{
 				System.out.println("[DISCORD] Closed: " + code + " - " + reason);

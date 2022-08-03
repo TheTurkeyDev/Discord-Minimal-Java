@@ -1,8 +1,10 @@
 package dev.theturkey.discordminimaljava;
 
 import dev.theturkey.discordminimaljava.objects.DiscordGatewayBotInfo;
+import dev.theturkey.discordminimaljava.objects.DiscordGuildMemberUpdate;
 import dev.theturkey.discordminimaljava.objects.DiscordInteraction;
 import dev.theturkey.discordminimaljava.objects.DiscordMessage;
+import dev.theturkey.discordminimaljava.objects.DiscordMessageReactionAdd;
 import dev.theturkey.discordminimaljava.objects.DiscordReady;
 import dev.theturkey.discordminimaljava.payloads.DiscordGatewayPayload;
 import dev.theturkey.discordminimaljava.rest.DiscordAPI;
@@ -80,21 +82,24 @@ public class DiscordMinimal
 	{
 		switch(payload.t)
 		{
-			case "READY" -> onReady(DiscordAPI.GSON.fromJson(payload.d, DiscordReady.class));
-			case "MESSAGE_CREATE" -> onMessageCreate(DiscordAPI.GSON.fromJson(payload.d, DiscordMessage.class));
-			case "INTERACTION_CREATE" ->
-					onInteractionCreate(DiscordAPI.GSON.fromJson(payload.d, DiscordInteraction.class));
-			case "GUILD_MEMBER_UPDATE" ->
+			case "READY" -> onReady(assign(payload, DiscordReady.class));
+			case "MESSAGE_CREATE" -> onMessageCreate(assign(payload, DiscordMessage.class));
+			case "MESSAGE_UPDATE" -> onMessageUpdate(assign(payload, DiscordMessage.class));
+			case "MESSAGE_DELETE" -> onMessageDelete(assign(payload, DiscordMessage.class));
+			case "MESSAGE_REACTION_ADD" -> onMessageReactionAdd(assign(payload, DiscordMessageReactionAdd.class));
+			case "INTERACTION_CREATE" -> onInteractionCreate(assign(payload, DiscordInteraction.class));
+			case "GUILD_MEMBER_UPDATE" -> onDiscordGuildMemberUpdate(assign(payload, DiscordGuildMemberUpdate.class));
+			case "RESUMED", "APPLICATION_COMMAND_PERMISSIONS_UPDATE" ->
 			{
 			}
-			case "RESUMED" ->
-			{
-			}
-			case "MESSAGE_UPDATE" ->
-			{
-			}
+
 			default -> System.out.println("UNKNOWN EVENT: " + payload.t);
 		}
+	}
+
+	public <T> T assign(DiscordGatewayPayload payload, Class<T> clazz)
+	{
+		return DiscordAPI.GSON.fromJson(payload.d, clazz);
 	}
 
 	/*
@@ -105,7 +110,11 @@ public class DiscordMinimal
 	public void onError(Exception ex){}
 	public void onReady(DiscordReady ready){}
 	public void onMessageCreate(DiscordMessage message){}
+	public void onMessageUpdate(DiscordMessage message){}
+	public void onMessageDelete(DiscordMessage message){}
+	public void onMessageReactionAdd(DiscordMessageReactionAdd reaction){}
 	public void onInteractionCreate(DiscordInteraction interaction){}
+	public void onDiscordGuildMemberUpdate(DiscordGuildMemberUpdate member){}
 
 	//@formatter:on
 }

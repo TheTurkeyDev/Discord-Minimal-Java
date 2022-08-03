@@ -14,8 +14,14 @@ public class DiscordUser
 	 * The user's 4-digit discord-tag
 	 */
 	public String discriminator;
+
 	// public avatar ? string	the user's avatar hash	identify
-	// public bot ? boolean	whether the user belongs to an OAuth2 application	identify
+
+	/**
+	 * whether the user belongs to an OAuth2 application	identify
+	 */
+	public boolean bot;
+
 	// public system ? boolean	whether the user is an Official Discord System user(part of the urgent message system)	identify
 	// public mfa_enabled ? boolean	whether the user has two factor enabled on their account	identify
 	// public banner ?	? string	the user's banner hash	identify
