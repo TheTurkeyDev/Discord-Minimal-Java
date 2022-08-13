@@ -2,7 +2,7 @@ package dev.theturkey.discordminimaljava.objects;
 
 public class DiscordIntents
 {
-	public static long GUILDS = 0;
+	public static long GUILDS = 1;
 	public static long GUILD_MEMBERS = 1 << 1;
 	public static long GUILD_BANS = 1 << 2;
 	public static long GUILD_EMOJIS_AND_STICKERS = 1 << 3;

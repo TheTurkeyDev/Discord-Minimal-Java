@@ -42,6 +42,9 @@ public class DiscordAPI
 		registerEnumTypeAdapters(builder, DiscordComponentType.class, DiscordComponentType::getFromId);
 		registerEnumTypeAdapters(builder, DiscordInteractionType.class, DiscordInteractionType::getFromId);
 		registerEnumTypeAdapters(builder, DiscordInteractionCallbackType.class, DiscordInteractionCallbackType::getFromId);
+		registerEnumTypeAdapters(builder, DiscordChannelType.class, DiscordChannelType::getFromId);
+		registerEnumTypeAdapters(builder, DiscordButtonStyle.class, DiscordButtonStyle::getFromId);
+		registerEnumTypeAdapters(builder, DiscordTextInputStyle.class, DiscordTextInputStyle::getFromId);
 		GSON = builder.create();
 
 		REQUEST_THREAD = new Thread(new Runnable()
@@ -165,15 +168,15 @@ public class DiscordAPI
 		gsonBuilder.registerTypeAdapter(t, deserializer);
 	}
 
-	private static HttpResponseWrapper sendRestCall(String group, String url, String reqType)
+	private static HttpResponseWrapper sendRestCall(String topLvlUrl, String url, String reqType)
 	{
-		return sendRestCall(group, url, reqType, null);
+		return sendRestCall(topLvlUrl, url, reqType, null);
 	}
 
-	private static HttpResponseWrapper sendRestCall(String group, String url, String reqType, String body)
+	private static HttpResponseWrapper sendRestCall(String topLvlUrl, String url, String reqType, String body)
 	{
 		HttpResponseWrapper response = new HttpResponseWrapper();
-		REQUEST_QUEUE.add(new DiscordAPIRequestData(group, url, reqType, body, response));
+		REQUEST_QUEUE.add(new DiscordAPIRequestData(topLvlUrl + url + "/" + reqType, topLvlUrl + url, reqType, body, response));
 		if(REQUEST_QUEUE.size() == 1)
 		{
 			synchronized(REQUEST_THREAD)
@@ -204,6 +207,23 @@ public class DiscordAPI
 			return new ResponseObject<>(GSON.fromJson(body, clazz), null);
 	}
 
+	private static <T> ResponseObject<List<T>> getResponseObjList(int code, String body, Class<T> clazz)
+	{
+		if(code != 200)
+		{
+			DiscordAPIError error = GSON.fromJson(body, DiscordAPIError.class);
+			return new ResponseObject<>(null, error);
+		}
+		else
+		{
+			JsonArray jsonArray = JsonParser.parseString(body).getAsJsonArray();
+			List<T> commands = new ArrayList<>();
+			for(JsonElement e : jsonArray)
+				commands.add(GSON.fromJson(e, clazz));
+			return new ResponseObject<>(commands, null);
+		}
+	}
+
 	private static ResponseObject<Void> getEmptyResponseObj(int code, String body)
 	{
 		if(code != 200)
@@ -215,70 +235,123 @@ public class DiscordAPI
 	public static DiscordAPIResponse<DiscordGatewayBotInfo> getGatewayBot()
 	{
 		DiscordAPIResponse<DiscordGatewayBotInfo> apiResp = new DiscordAPIResponse<>();
-		String url = "gateway/bot";
-		sendRestCall(url, url, "GET").onResponse((code, body) ->
+		sendRestCall("gateway/bot", "", "GET").onResponse((code, body) ->
 				apiResp.resolveCall(getResponseObj(code, body, DiscordGatewayBotInfo.class)));
 
 		return apiResp;
 	}
 
-	public static DiscordAPIResponse<DiscordMessage> createMessage(long channelId, DiscordMessageCreate message)
+	public static DiscordAPIResponse<DiscordMessage> createMessage(String channelId, DiscordMessageCreate message)
 	{
 		DiscordAPIResponse<DiscordMessage> apiResp = new DiscordAPIResponse<>();
-		String url = "channels/" + channelId + "/messages";
-		sendRestCall(url + "/create", url, "POST", GSON.toJson(message)).onResponse((code, body) ->
+		sendRestCall("channels/" + channelId + "/messages", "", "POST", GSON.toJson(message)).onResponse((code, body) ->
 				apiResp.resolveCall(getResponseObj(code, body, DiscordMessage.class)));
 
 		return apiResp;
 	}
 
-	public static DiscordAPIResponse<DiscordMessage> sendEmbed(long channelId, DiscordEmbed embed)
+	public static DiscordAPIResponse<Void> deleteMessage(String channelId, String messageId)
+	{
+		DiscordAPIResponse<Void> apiResp = new DiscordAPIResponse<>();
+		sendRestCall("channels/" + channelId + "/messages/", messageId, "DELETE").onResponse((code, body) ->
+				apiResp.resolveCall(getEmptyResponseObj(code, body)));
+
+		return apiResp;
+	}
+
+	public static DiscordAPIResponse<DiscordMessage> sendEmbed(String channelId, DiscordEmbed embed, DiscordComponent[] components)
 	{
 		DiscordMessageCreate message = new DiscordMessageCreate();
 		message.embeds = new DiscordEmbed[]{embed};
+		message.components = components;
 		return createMessage(channelId, message);
 	}
 
-	public static DiscordAPIResponse<DiscordMessage> sendMessage(long channelId, String msg)
+	public static DiscordAPIResponse<DiscordMessage> sendEmbed(String channelId, DiscordEmbed embed, DiscordComponent component)
+	{
+		return sendEmbed(channelId, embed, new DiscordComponent[]{component});
+	}
+
+	public static DiscordAPIResponse<DiscordMessage> sendEmbed(String channelId, DiscordEmbed embed)
+	{
+		return sendEmbed(channelId, embed, new DiscordComponent[0]);
+	}
+
+	public static DiscordAPIResponse<DiscordMessage> sendMessage(String channelId, String msg)
 	{
 		DiscordMessageCreate message = new DiscordMessageCreate();
 		message.content = msg;
 		return createMessage(channelId, message);
 	}
 
-	public static DiscordAPIResponse<DiscordMessage> editEmbed(DiscordMessage orig, DiscordEmbed embed)
+	public static DiscordAPIResponse<DiscordMessage> editEmbed(String channelId, String messageId, DiscordEmbed embed, DiscordComponent[] components)
 	{
 		DiscordMessageEdit editMessage = new DiscordMessageEdit();
 		editMessage.embeds = new DiscordEmbed[]{embed};
+		editMessage.components = components;
 
 		DiscordAPIResponse<DiscordMessage> apiResp = new DiscordAPIResponse<>();
-		String url = "channels/" + orig.channelId + "/messages/" + orig.id;
-		sendRestCall(url + "/edit", url, "PATCH", GSON.toJson(editMessage)).onResponse((code, body) ->
+		sendRestCall("channels/" + channelId + "/messages/", messageId, "PATCH", GSON.toJson(editMessage)).onResponse((code, body) ->
 				apiResp.resolveCall(getResponseObj(code, body, DiscordMessage.class)));
 
 		return apiResp;
 	}
 
-	public static DiscordAPIResponse<List<DiscordApplicationCommand>> getGlobalApplicationCommands(long applicationId)
+	public static DiscordAPIResponse<DiscordMessage> editEmbed(String channelId, String messageId, DiscordEmbed embed)
+	{
+		return editEmbed(channelId, messageId, embed, new DiscordComponent[0]);
+	}
+
+	public static DiscordAPIResponse<DiscordMessage> editEmbed(String channelId, String messageId, DiscordEmbed embed, DiscordComponent component)
+	{
+		return editEmbed(channelId, messageId, embed, new DiscordComponent[]{component});
+	}
+
+	public static DiscordAPIResponse<DiscordMessage> editEmbed(DiscordMessage orig, DiscordEmbed embed)
+	{
+		return editEmbed(orig.channelId, orig.id, embed, new DiscordComponent[0]);
+	}
+
+	public static DiscordAPIResponse<DiscordMessage> editEmbed(DiscordMessage orig, DiscordEmbed embed, DiscordComponent[] components)
+	{
+		return editEmbed(orig.channelId, orig.id, embed, components);
+	}
+
+	public static DiscordAPIResponse<DiscordMessage> editEmbed(DiscordMessage orig, DiscordEmbed embed, DiscordComponent component)
+	{
+		return editEmbed(orig, embed, new DiscordComponent[]{component});
+	}
+
+	public static DiscordAPIResponse<List<DiscordRole>> getGuildMemberRole(String guildId)
+	{
+		DiscordAPIResponse<List<DiscordRole>> apiResp = new DiscordAPIResponse<>();
+		sendRestCall("/guilds/" + guildId + "/roles", "", "GET").onResponse((code, body) ->
+				apiResp.resolveCall(getResponseObjList(code, body, DiscordRole.class)));
+		return apiResp;
+	}
+
+	public static DiscordAPIResponse<Void> addGuildMemberRole(String guildId, String userId, String roleId)
+	{
+		DiscordAPIResponse<Void> apiResp = new DiscordAPIResponse<>();
+		sendRestCall("/guilds/" + guildId + "/members/", userId + "/roles/" + roleId, "PUT").onResponse((code, body) ->
+				apiResp.resolveCall(getEmptyResponseObj(code, body)));
+		return apiResp;
+	}
+
+	public static DiscordAPIResponse<Void> removeGuildMemberRole(String guildId, String userId, String roleId)
+	{
+		DiscordAPIResponse<Void> apiResp = new DiscordAPIResponse<>();
+		sendRestCall("/guilds/" + guildId + "/members/", userId + "/roles/" + roleId, "DELETE").onResponse((code, body) ->
+				apiResp.resolveCall(getEmptyResponseObj(code, body)));
+
+		return apiResp;
+	}
+
+	public static DiscordAPIResponse<List<DiscordApplicationCommand>> getGlobalApplicationCommands(String applicationId)
 	{
 		DiscordAPIResponse<List<DiscordApplicationCommand>> apiResp = new DiscordAPIResponse<>();
-		String url = "applications/" + applicationId + "/commands";
-		sendRestCall(url, url, "GET").onResponse((code, body) ->
-		{
-			if(code != 200)
-			{
-				DiscordAPIError error = GSON.fromJson(body, DiscordAPIError.class);
-				apiResp.resolveCall(new ResponseObject<>(null, error));
-			}
-			else
-			{
-				JsonArray jsonArray = JsonParser.parseString(body).getAsJsonArray();
-				List<DiscordApplicationCommand> commands = new ArrayList<>();
-				for(JsonElement e : jsonArray)
-					commands.add(GSON.fromJson(e, DiscordApplicationCommand.class));
-				apiResp.resolveCall(new ResponseObject<>(commands, null));
-			}
-		});
+		sendRestCall("applications/" + applicationId + "/commands", "", "GET").onResponse((code, body) ->
+				apiResp.resolveCall(getResponseObjList(code, body, DiscordApplicationCommand.class)));
 
 		return apiResp;
 	}
@@ -286,8 +359,7 @@ public class DiscordAPI
 	public static DiscordAPIResponse<Void> deleteGlobalApplicationCommands(DiscordApplicationCommand command)
 	{
 		DiscordAPIResponse<Void> apiResp = new DiscordAPIResponse<>();
-		String url = "applications/" + command.applicationId + "/commands/" + command.id;
-		sendRestCall(url + "/delete", url, "DELETE").onResponse((code, body) ->
+		sendRestCall("applications/" + command.applicationId + "/commands/", command.id, "DELETE").onResponse((code, body) ->
 				apiResp.resolveCall(getEmptyResponseObj(code, body)));
 
 		return apiResp;
@@ -296,27 +368,25 @@ public class DiscordAPI
 	public static DiscordAPIResponse<DiscordApplicationCommand> createGlobalAppCommand(DiscordApplicationCommand command)
 	{
 		DiscordAPIResponse<DiscordApplicationCommand> apiResp = new DiscordAPIResponse<>();
-		String url = "applications/" + command.applicationId + "/commands";
-		sendRestCall(url + "/create", url, "POST", GSON.toJson(command)).onResponse((code, body) ->
+		sendRestCall("applications/" + command.applicationId + "/commands", "", "POST", GSON.toJson(command)).onResponse((code, body) ->
 				apiResp.resolveCall(getResponseObj(code, body, DiscordApplicationCommand.class)));
 
 		return apiResp;
 	}
 
-	public static DiscordAPIResponse<Void> timeoutUser(long guildId, long userId, int durationSec)
+	public static DiscordAPIResponse<Void> timeoutUser(String guildId, String userId, int durationSec)
 	{
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty("communication_disabled_until", LocalDateTime.now().plusSeconds(durationSec).atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")));
 
 		DiscordAPIResponse<Void> apiResp = new DiscordAPIResponse<>();
-		String url = "guilds/" + guildId + "/members/" + userId;
-		sendRestCall(url, url, "PATCH", GSON.toJson(jsonObject)).onResponse((code, body) ->
+		sendRestCall("guilds/" + guildId + "/members/", userId, "PATCH", GSON.toJson(jsonObject)).onResponse((code, body) ->
 				apiResp.resolveCall(getEmptyResponseObj(code, body)));
 
 		return apiResp;
 	}
 
-	public static void interactionCallback(long id, String token, DiscordInteractionResponse resp)
+	public static void interactionCallback(String id, String token, DiscordInteractionResponse resp)
 	{
 		HttpRequest request = getDefaultReq(URL_BASE + "/interactions/" + id + "/" + token + "/callback", "POST", GSON.toJson(resp));
 		try
@@ -328,11 +398,10 @@ public class DiscordAPI
 		}
 	}
 
-	public static DiscordAPIResponse<DiscordMessage> interactionEdit(long id, String token, DiscordEditWebhookMessage edit)
+	public static DiscordAPIResponse<DiscordMessage> interactionEdit(String id, String token, DiscordEditWebhookMessage edit)
 	{
 		DiscordAPIResponse<DiscordMessage> apiResp = new DiscordAPIResponse<>();
-		String url = "webhooks/" + id + "/" + token + "/messages/@original";
-		sendRestCall(url + "/edit", url, "PATCH", GSON.toJson(edit)).onResponse((code, body) ->
+		sendRestCall("webhooks/" + id + "/" + token + "/messages/@original", "", "PATCH", GSON.toJson(edit)).onResponse((code, body) ->
 				apiResp.resolveCall(getResponseObj(code, body, DiscordMessage.class)));
 		return apiResp;
 	}

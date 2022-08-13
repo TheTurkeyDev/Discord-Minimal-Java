@@ -5,7 +5,7 @@ public class DiscordUser
 	/**
 	 * The user's id
 	 */
-	public long id;
+	public String id;
 	/**
 	 * The user's username, not unique across the platform
 	 */

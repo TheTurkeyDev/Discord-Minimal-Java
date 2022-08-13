@@ -9,20 +9,20 @@ public class DiscordMessage
 	/**
 	 * Id of the message
 	 */
-	public long id;
+	public String id;
 
 	/**
 	 * Id of the channel the message was sent in
 	 */
 	@SerializedName("channel_id")
-	public long channelId;
+	public String channelId;
 
 	/**
 	 * OPTIONAL
 	 * Id of the guild the message was sent in
 	 */
 	@SerializedName("guild_id")
-	public long guildId;
+	public String guildId;
 
 	/**
 	 * The author of this message(not guaranteed to be a valid user, see below)

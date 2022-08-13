@@ -7,7 +7,7 @@ public class DiscordRole
 	/**
 	 * Role id
 	 */
-	public long id;
+	public String id;
 
 	/**
 	 * Role name

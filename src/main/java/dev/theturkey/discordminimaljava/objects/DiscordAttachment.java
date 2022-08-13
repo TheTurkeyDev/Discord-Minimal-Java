@@ -7,7 +7,7 @@ public class DiscordAttachment
 	/**
 	 * Attachment id
 	 */
-	public long id;
+	public String id;
 
 	/**
 	 * 	Name of file attached

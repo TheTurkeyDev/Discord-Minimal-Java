@@ -8,26 +8,26 @@ public class DiscordMessageReactionAdd
 	 * The user's id
 	 */
 	@SerializedName("user_id")
-	public long userId;
+	public String userId;
 
 	/**
 	 * The id of the channel
 	 */
 	@SerializedName("channel_id")
-	public long channelId;
+	public String channelId;
 
 	/**
 	 * The id of the message
 	 */
 	@SerializedName("message_id")
-	public long messageId;
+	public String messageId;
 
 	/**
 	 * OPTIONAL
 	 * The id of the guild
 	 */
 	@SerializedName("guild_id")
-	public long guildId;
+	public String guildId;
 
 	/**
 	 * OPTIONAL

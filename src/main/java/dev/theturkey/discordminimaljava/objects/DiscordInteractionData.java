@@ -7,7 +7,7 @@ public class DiscordInteractionData
 	/**
 	 * The ID of the invoked command
 	 */
-	public long id;
+	public String id;
 
 	/**
 	 * The name of the invoked command

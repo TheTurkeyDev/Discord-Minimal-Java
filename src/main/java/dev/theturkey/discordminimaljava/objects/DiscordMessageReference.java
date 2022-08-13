@@ -9,21 +9,21 @@ public class DiscordMessageReference
 	 * Id of the originating message
 	 */
 	@SerializedName("message_id")
-	public long messageId;
+	public String messageId;
 
 	/**
 	 * OPTIONAL
 	 * Id of the originating message's channel
 	 */
 	@SerializedName("channel_id")
-	public long channelId;
+	public String channelId;
 
 	/**
 	 * OPTIONAL
 	 * Id of the originating message's guild
 	 */
 	@SerializedName("guild_id")
-	public long guildId;
+	public String guildId;
 
 	/**
 	 * OPTIONAL

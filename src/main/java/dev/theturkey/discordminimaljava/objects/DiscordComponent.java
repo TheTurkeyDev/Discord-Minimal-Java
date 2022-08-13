@@ -1,9 +1,14 @@
 package dev.theturkey.discordminimaljava.objects;
 
-public class DiscordComponent
+public abstract class DiscordComponent
 {
 	/**
 	 * Component type
 	 */
 	public DiscordComponentType type;
+
+	public DiscordComponent(DiscordComponentType type)
+	{
+		this.type = type;
+	}
 }

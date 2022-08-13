@@ -10,7 +10,7 @@ public class DiscordApplicationCommand
 	/**
 	 * unique id of the command
 	 */
-	public long id;
+	public String id;
 
 	/**
 	 * the type of command, defaults 1 if not set
@@ -21,13 +21,13 @@ public class DiscordApplicationCommand
 	 * unique id of the parent application
 	 */
 	@SerializedName("application_id")
-	public long applicationId;
+	public String applicationId;
 
 	/**
 	 * guild id of the command, if not global
 	 */
 	@SerializedName("guild_id")
-	public long guildId;
+	public String guildId;
 
 	/**
 	 * 1-32 character name

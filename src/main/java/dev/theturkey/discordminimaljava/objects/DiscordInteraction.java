@@ -9,13 +9,13 @@ public class DiscordInteraction
 	/**
 	 * Id of the interaction
 	 */
-	public long id;
+	public String id;
 
 	/**
 	 * Id of the application this interaction is for
 	 */
 	@SerializedName("application_id")
-	public long applicationId;
+	public String applicationId;
 
 	/**
 	 * The type of interaction
@@ -39,7 +39,7 @@ public class DiscordInteraction
 	 * The channel it was sent from
 	 */
 	@SerializedName("channel_id")
-	public long channelId;
+	public String channelId;
 
 	/**
 	 * OPTIONAL
@@ -63,11 +63,20 @@ public class DiscordInteraction
 	 */
 	public int version;
 
-	// public message ? message object	for components, the message they were attached to
+	/**
+	 * For components, the message they were attached to
+	 * OPTIONAL
+	 */
+	public DiscordMessage message;
 
 	public boolean isButton()
 	{
 		return this.data != null && this.data.componentType == DiscordComponentType.BUTTON;
+	}
+
+	public boolean isSelect()
+	{
+		return this.data != null && this.data.componentType == DiscordComponentType.SELECT_MENU;
 	}
 
 	public boolean isAppCommand()

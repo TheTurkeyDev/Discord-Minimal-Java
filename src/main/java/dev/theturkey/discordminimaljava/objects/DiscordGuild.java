@@ -2,12 +2,15 @@ package dev.theturkey.discordminimaljava.objects;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DiscordGuild
 {
 	/**
 	 * Guild id
 	 */
-	public long id;
+	public String id;
 	/**
 	 * Guild name (2-100 characters, excluding trailing and leading whitespace)
 	 */
@@ -27,7 +30,7 @@ public class DiscordGuild
 	 * id of owner
 	 */
 	@SerializedName("owner_id")
-	public long ownerId;
+	public String ownerId;
 	// region? ***	?string	voice region id for the guild (deprecated)
 	// afk_channel_id	?snowflake	id of afk channel
 	// afk_timeout	integer	afk timeout in seconds
@@ -53,7 +56,12 @@ public class DiscordGuild
 	// member_count? *	integer	total number of members in this guild
 	// voice_states? *	array of partial voice state objects	states of members currently in voice channels; lacks the guild_id key
 	// members? *	array of guild member objects	users in the guild
-	// channels? *	array of channel objects	channels in the guild
+
+	/**
+	 * Channels in the guild
+	 */
+	public List<DiscordChannel> channels = new ArrayList<>();
+
 	// threads? *	array of channel objects	all active threads in the guild that current user has permission to view
 	// presences? *	array of partial presence update objects	presences of the members in the guild, will only include non-offline members if the size is greater than large threshold
 	// max_presences?	?integer	the maximum number of presences for the guild (null is always returned, apart from the largest of guilds)

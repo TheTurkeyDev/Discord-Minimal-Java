@@ -47,6 +47,7 @@ public class DiscordWebSocket extends WebSocketClient
 	public void onMessage(String data)
 	{
 		DiscordGatewayPayload message = DiscordAPI.GSON.fromJson(data, DiscordGatewayPayload.class);
+
 		if(message.s != null)
 			this.seq = message.s;
 
@@ -105,7 +106,8 @@ public class DiscordWebSocket extends WebSocketClient
 		if(reason.equals("Clientside closed!"))
 			return;
 
-		if(code < 4000){
+		if(code < 4000)
+		{
 			this.initReconnect();
 			return;
 		}
@@ -113,11 +115,7 @@ public class DiscordWebSocket extends WebSocketClient
 		switch(code)
 		{
 			case 4000, 4008, 4009 -> this.initReconnect();
-			default ->
-			{
-				System.out.println("[DISCORD] Closed: " + code + " - " + reason);
-				//this.initReconnectFull();
-			}
+			default -> System.out.println("[DISCORD] Closed: " + code + " - " + reason);
 		}
 	}
 

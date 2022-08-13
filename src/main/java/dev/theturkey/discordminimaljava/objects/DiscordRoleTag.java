@@ -9,14 +9,14 @@ public class DiscordRoleTag
 	 * The id of the bot this role belongs to
 	 */
 	@SerializedName("bot_id")
-	public long botId;
+	public String botId;
 
 	/**
 	 * OPTIONAL
 	 * The id of the integration this role belongs to
 	 */
 	@SerializedName("integration_id")
-	public long integrationId;
+	public String integrationId;
 
 	/**
 	 * OPTIONAL

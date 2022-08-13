@@ -1,7 +1,9 @@
 package dev.theturkey.discordminimaljava;
 
 import dev.theturkey.discordminimaljava.objects.DiscordGatewayBotInfo;
+import dev.theturkey.discordminimaljava.objects.DiscordGuild;
 import dev.theturkey.discordminimaljava.objects.DiscordGuildMemberUpdate;
+import dev.theturkey.discordminimaljava.objects.DiscordGuildRoleCreateResponse;
 import dev.theturkey.discordminimaljava.objects.DiscordInteraction;
 import dev.theturkey.discordminimaljava.objects.DiscordMessage;
 import dev.theturkey.discordminimaljava.objects.DiscordMessageReactionAdd;
@@ -88,8 +90,13 @@ public class DiscordMinimal
 			case "MESSAGE_DELETE" -> onMessageDelete(assign(payload, DiscordMessage.class));
 			case "MESSAGE_REACTION_ADD" -> onMessageReactionAdd(assign(payload, DiscordMessageReactionAdd.class));
 			case "INTERACTION_CREATE" -> onInteractionCreate(assign(payload, DiscordInteraction.class));
+			case "GUILD_CREATE" -> onGuildCreate(assign(payload, DiscordGuild.class));
+			case "GUILD_DELETE" -> onGuildDelete(assign(payload, DiscordGuild.class));
+			case "GUILD_UPDATE" -> onGuildUpdate(assign(payload, DiscordGuild.class));
 			case "GUILD_MEMBER_UPDATE" -> onDiscordGuildMemberUpdate(assign(payload, DiscordGuildMemberUpdate.class));
-			case "RESUMED", "APPLICATION_COMMAND_PERMISSIONS_UPDATE" ->
+			case "GUILD_ROLE_CREATE" -> onDiscordGuildRoleCreate(assign(payload, DiscordGuildRoleCreateResponse.class));
+			case "GUILD_ROLE_UPDATE" -> onDiscordGuildRoleUpdate(assign(payload, DiscordGuildRoleCreateResponse.class));
+			case "RESUMED", "APPLICATION_COMMAND_PERMISSIONS_UPDATE", "GIFT_CODE_UPDATE" ->
 			{
 			}
 
@@ -114,7 +121,12 @@ public class DiscordMinimal
 	public void onMessageDelete(DiscordMessage message){}
 	public void onMessageReactionAdd(DiscordMessageReactionAdd reaction){}
 	public void onInteractionCreate(DiscordInteraction interaction){}
+	public void onGuildCreate(DiscordGuild guild){}
+	public void onGuildDelete(DiscordGuild guild){}
+	public void onGuildUpdate(DiscordGuild guild){}
 	public void onDiscordGuildMemberUpdate(DiscordGuildMemberUpdate member){}
+	public void onDiscordGuildRoleCreate(DiscordGuildRoleCreateResponse response){}
+	public void onDiscordGuildRoleUpdate(DiscordGuildRoleCreateResponse response){}
 
 	//@formatter:on
 }

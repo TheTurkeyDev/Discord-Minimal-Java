@@ -26,7 +26,7 @@ public class DiscordInteractionResponseData
 	 * OPTIONAL
 	 * Interaction callback data flags
 	 */
-	public long flags;
+	public String flags;
 
 	/**
 	 * OPTIONAL

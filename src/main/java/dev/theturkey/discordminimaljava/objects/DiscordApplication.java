@@ -5,7 +5,7 @@ public class DiscordApplication
 	/**
 	 * The id of the app
 	 */
-	public long id;
+	public String id;
 	// name	string	the name of the app
 	// icon	?string	the icon hash of the app
 	// description	string	the description of the app

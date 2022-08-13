@@ -8,12 +8,12 @@ public class DiscordGuildMemberUpdate
 	 * The id of the guild
 	 */
 	@SerializedName("guild_id")
-	public long guildId;
+	public String guildId;
 
 	/**
 	 * User role ids
 	 */
-	public long[] roles;
+	public String[] roles;
 
 	/**
 	 * The user

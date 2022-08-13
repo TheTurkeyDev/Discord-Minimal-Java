@@ -23,7 +23,7 @@ public class DiscordGuildMember
 	/**
 	 * Array of role object ids
 	 */
-	public long[] roles;
+	public String[] roles;
 	// public joined_at	ISO8601 timestamp	when the user joined the guild
 	// public premium_since?	?ISO8601 timestamp	when the user started boosting the guild
 

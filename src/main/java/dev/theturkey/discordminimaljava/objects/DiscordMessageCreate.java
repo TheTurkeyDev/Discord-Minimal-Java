@@ -28,7 +28,10 @@ public class DiscordMessageCreate
 	@SerializedName("message_reference")
 	public DiscordMessageReference messageReference;
 
-	//public components?:DiscordComponent[];                 // The components to include with the messag
+	/**
+	 * The components to include with the message
+	 */
+	public DiscordComponent[] components;
 
 	/**
 	 * OPTIONAL
