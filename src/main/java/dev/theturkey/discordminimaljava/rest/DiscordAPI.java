@@ -22,14 +22,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
 
 public class DiscordAPI
 {
 	public static Gson GSON;
-	public static HttpClient CLIENT = HttpClient.newBuilder()
-			.version(HttpClient.Version.HTTP_2)
-			.build();
-	public static String URL_BASE = "https://discord.com/api/v8/";
+	public static String URL_BASE = "https://discord.com/api/v" + DiscordMinimal.API_VERSION + "/";
 	private static final Map<String, BucketRateLimit> BUCKET_MAP = new HashMap<>();
 	private static final ConcurrentLinkedQueue<DiscordAPIRequestData> REQUEST_QUEUE = new ConcurrentLinkedQueue<>();
 	private static final Thread REQUEST_THREAD;
@@ -87,7 +85,7 @@ public class DiscordAPI
 						try
 						{
 							//TODO: Don't get right away
-							r = CLIENT.sendAsync(request, HttpResponse.BodyHandlers.ofString()).get();
+							r = getClient().sendAsync(request, HttpResponse.BodyHandlers.ofString()).get();
 						} catch(Exception e)
 						{
 							e.printStackTrace();
@@ -168,6 +166,13 @@ public class DiscordAPI
 		gsonBuilder.registerTypeAdapter(t, deserializer);
 	}
 
+	private static HttpClient getClient()
+	{
+		return HttpClient.newBuilder()
+				.version(HttpClient.Version.HTTP_2)
+				.build();
+	}
+
 	private static HttpResponseWrapper sendRestCall(String topLvlUrl, String url, String reqType)
 	{
 		return sendRestCall(topLvlUrl, url, reqType, null);
@@ -230,6 +235,50 @@ public class DiscordAPI
 			return new ResponseObject<>(null, GSON.fromJson(body, DiscordAPIError.class));
 		else
 			return new ResponseObject<>(null, null);
+	}
+
+	private static void latch(CountDownLatch latch)
+	{
+		try
+		{
+			latch.await();
+		} catch(InterruptedException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static <T> T makeBlockingRequest(DiscordAPIResponse<T> request)
+	{
+		List<T> info = new ArrayList<>();
+		CountDownLatch latch = new CountDownLatch(1);
+		request.onResponse(resp ->
+		{
+			info.add(resp.data);
+			latch.countDown();
+		});
+		latch(latch);
+		return info.get(0);
+	}
+
+	public static <T> List<T> makeBlockingListRequest(DiscordAPIResponse<List<T>> request)
+	{
+		List<T> info = new ArrayList<>();
+		CountDownLatch latch = new CountDownLatch(1);
+		request.onResponse(resp ->
+		{
+			info.addAll(resp.data);
+			latch.countDown();
+		});
+		latch(latch);
+		return info;
+	}
+
+	public static void makeBlockingVoidRequest(DiscordAPIResponse<Void> request)
+	{
+		CountDownLatch latch = new CountDownLatch(1);
+		request.onResponse(resp -> latch.countDown());
+		latch(latch);
 	}
 
 	public static DiscordAPIResponse<DiscordGatewayBotInfo> getGatewayBot()
@@ -322,7 +371,34 @@ public class DiscordAPI
 		return editEmbed(orig, embed, new DiscordComponent[]{component});
 	}
 
-	public static DiscordAPIResponse<List<DiscordRole>> getGuildMemberRole(String guildId)
+	public static DiscordAPIResponse<List<DiscordGuildMember>> listGuildMembers(String guildId)
+	{
+		return listGuildMembers(guildId, 1, "0");
+	}
+
+	public static DiscordAPIResponse<List<DiscordGuildMember>> listGuildMembers(String guildId, int limit)
+	{
+		return listGuildMembers(guildId, limit, "0");
+	}
+
+	public static DiscordAPIResponse<List<DiscordGuildMember>> listGuildMembers(String guildId, int limit, String after)
+	{
+		int maxLim = Math.min(1000, limit);
+		DiscordAPIResponse<List<DiscordGuildMember>> apiResp = new DiscordAPIResponse<>();
+		sendRestCall("/guilds/" + guildId + "/members", "?limit=" + maxLim + "&after=" + after, "GET").onResponse((code, body) ->
+				apiResp.resolveCall(getResponseObjList(code, body, DiscordGuildMember.class)));
+		return apiResp;
+	}
+
+	public static DiscordAPIResponse<DiscordGuildMember> getGuildMember(String guildId, String userId)
+	{
+		DiscordAPIResponse<DiscordGuildMember> apiResp = new DiscordAPIResponse<>();
+		sendRestCall("/guilds/" + guildId + "/members", "/" + userId, "GET").onResponse((code, body) ->
+				apiResp.resolveCall(getResponseObj(code, body, DiscordGuildMember.class)));
+		return apiResp;
+	}
+
+	public static DiscordAPIResponse<List<DiscordRole>> getGuildRoles(String guildId)
 	{
 		DiscordAPIResponse<List<DiscordRole>> apiResp = new DiscordAPIResponse<>();
 		sendRestCall("/guilds/" + guildId + "/roles", "", "GET").onResponse((code, body) ->
@@ -374,6 +450,15 @@ public class DiscordAPI
 		return apiResp;
 	}
 
+	public static DiscordAPIResponse<DiscordApplicationCommand> createGuildAppCommand(DiscordApplicationCommand command, String guildId)
+	{
+		DiscordAPIResponse<DiscordApplicationCommand> apiResp = new DiscordAPIResponse<>();
+		sendRestCall("applications/" + command.applicationId + "/guilds/" + guildId + "/commands", "", "POST", GSON.toJson(command)).onResponse((code, body) ->
+				apiResp.resolveCall(getResponseObj(code, body, DiscordApplicationCommand.class)));
+
+		return apiResp;
+	}
+
 	public static DiscordAPIResponse<Void> timeoutUser(String guildId, String userId, int durationSec)
 	{
 		JsonObject jsonObject = new JsonObject();
@@ -391,7 +476,7 @@ public class DiscordAPI
 		HttpRequest request = getDefaultReq(URL_BASE + "/interactions/" + id + "/" + token + "/callback", "POST", GSON.toJson(resp));
 		try
 		{
-			CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+			getClient().send(request, HttpResponse.BodyHandlers.ofString());
 		} catch(Exception e)
 		{
 			e.printStackTrace();

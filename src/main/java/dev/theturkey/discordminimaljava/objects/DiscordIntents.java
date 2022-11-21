@@ -17,5 +17,9 @@ public class DiscordIntents
 	public static long DIRECT_MESSAGES = 1 << 12;
 	public static long DIRECT_MESSAGE_REACTIONS = 1 << 13;
 	public static long DIRECT_MESSAGE_TYPING = 1 << 14;
+	public static long MESSAGE_CONTENT = 1 << 15;
+	public static long GUILD_SCHEDULED_EVENTS = 1 << 16;
+	public static long AUTO_MODERATION_CONFIGURATION = 1 << 20;
+	public static long AUTO_MODERATION_EXECUTION = 1 << 21;
 
 }

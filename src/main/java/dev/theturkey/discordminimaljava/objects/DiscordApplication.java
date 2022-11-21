@@ -6,9 +6,23 @@ public class DiscordApplication
 	 * The id of the app
 	 */
 	public String id;
-	// name	string	the name of the app
-	// icon	?string	the icon hash of the app
-	// description	string	the description of the app
+
+	/**
+	 * The name of the app
+	 */
+	public String name;
+
+	/**
+	 * OPTIONAL
+	 * The icon hash of the app
+	 */
+	public String icon;
+
+	/**
+	 * The description of the app
+	 */
+	public String description;
+
 	// rpc_origins?	array of strings	an array of rpc origin urls, if rpc is enabled
 	// bot_public	boolean	when false only app owner can join the app's bot to guilds
 	// bot_require_code_grant	boolean	when true the app's bot will only join upon completion of the full oauth2 code grant flow

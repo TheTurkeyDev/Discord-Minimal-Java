@@ -26,6 +26,12 @@ public class DiscordReady
 	public String sessionId;
 
 	/**
+	 * Gateway url for resuming connections
+	 */
+	@SerializedName("resume_gateway_url")
+	public String resumeGatewayUrl;
+
+	/**
 	 * OPTIONAL
 	 * Array of two integers(shard_id, num_shards) the shard information associated with this session, if sent when identifying
 	 */

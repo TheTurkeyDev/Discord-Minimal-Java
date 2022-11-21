@@ -76,7 +76,13 @@ public class DiscordInteraction
 
 	public boolean isSelect()
 	{
-		return this.data != null && this.data.componentType == DiscordComponentType.SELECT_MENU;
+		return this.data != null && (
+				this.data.componentType == DiscordComponentType.STRING_SELECT ||
+						this.data.componentType == DiscordComponentType.USER_SELECT ||
+						this.data.componentType == DiscordComponentType.ROLE_SELECT ||
+						this.data.componentType == DiscordComponentType.MENTIONABLE_SELECT ||
+						this.data.componentType == DiscordComponentType.CHANNEL_SELECT
+		);
 	}
 
 	public boolean isAppCommand()
@@ -93,6 +99,14 @@ public class DiscordInteraction
 	{
 		DiscordInteractionResponseData data = new DiscordInteractionResponseData();
 		data.content = message;
+		respond(data);
+	}
+
+	public void respondEphemeral(String message)
+	{
+		DiscordInteractionResponseData data = new DiscordInteractionResponseData();
+		data.content = message;
+		data.flags = DiscordMessageFlags.EPHEMERAL;
 		respond(data);
 	}
 

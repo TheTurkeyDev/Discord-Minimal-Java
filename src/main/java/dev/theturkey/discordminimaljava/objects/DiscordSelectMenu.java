@@ -16,6 +16,12 @@ public class DiscordSelectMenu extends DiscordComponent
 	public DiscordSelectOption[] options;
 
 	/**
+	 * List of channel types to include in the channel select component (type 8)
+	 */
+	@SerializedName("channel_types")
+	public DiscordChannelType[] channelTypes;
+
+	/**
 	 * Custom placeholder text if nothing is selected, max 150 characters
 	 * OPTIONAL
 	 */
@@ -40,9 +46,9 @@ public class DiscordSelectMenu extends DiscordComponent
 	 */
 	public boolean disabled = false;
 
-	public DiscordSelectMenu(String customId, DiscordSelectOption[] options)
+	public DiscordSelectMenu(DiscordComponentType type, String customId, DiscordSelectOption[] options)
 	{
-		super(DiscordComponentType.SELECT_MENU);
+		super(type);
 		this.customId = customId;
 		this.options = options;
 	}

@@ -19,7 +19,11 @@ public class DiscordInteractionData
 	 */
 	public int type;
 
-	// public resolved ? resolved data	converted users + roles + channels	Application Command
+	/**
+	 * OPTIONAL
+	 * Converted users + roles + channels	Application Command
+	 */
+	public DiscordInteractionResolvedData resolved;
 
 	/**
 	 * OPTIONAL
@@ -41,6 +45,16 @@ public class DiscordInteractionData
 	@SerializedName("component_type")
 	public DiscordComponentType componentType;
 
-	// public values ? array of select option values	the values the user selected	Component(Select)
-	// public target_id ? snowflake	id the of user or message targetted by a user or message command	User Command, Message Command
+	/**
+	 * OPTIONAL
+	 * Values the user selected in a select menu component
+	 */
+	public String[] values;
+
+	/**
+	 * OPTIONAL
+	 * ID the of user or message targeted by a user or message command	User Command, Message Command
+	 */
+	@SerializedName("target_id")
+	public String targetId;
 }

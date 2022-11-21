@@ -23,6 +23,7 @@ public class DiscordWebSocket extends WebSocketClient
 	private final long intents;
 	private final int shardId;
 	private boolean resume = false;
+	private String resumeUrl;
 	private final int numShards;
 
 	private final DiscordMinimal dm;
@@ -55,7 +56,11 @@ public class DiscordWebSocket extends WebSocketClient
 		{
 			case 0:
 				if(message.t.equals("READY"))
-					sessionId = DiscordAPI.GSON.fromJson(message.d, DiscordReady.class).sessionId;
+				{
+					DiscordReady ready = DiscordAPI.GSON.fromJson(message.d, DiscordReady.class);
+					sessionId = ready.sessionId;
+					resumeUrl = ready.resumeGatewayUrl + "/?v=" + DiscordMinimal.API_VERSION + "&encoding=json";
+				}
 				dm.onPayload(message);
 				break;
 			case 7:
@@ -121,6 +126,13 @@ public class DiscordWebSocket extends WebSocketClient
 
 	private void initReconnect()
 	{
+		try
+		{
+			this.uri = new URI(this.resumeUrl);
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 		this.resume = true;
 		new Thread(this::reconnect).start();
 	}

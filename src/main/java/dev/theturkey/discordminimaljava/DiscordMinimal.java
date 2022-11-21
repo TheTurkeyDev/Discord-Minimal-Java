@@ -18,12 +18,12 @@ import java.util.List;
 
 public class DiscordMinimal
 {
+	public static final int API_VERSION = 10;
 	public static String token;
 	private final List<DiscordWebSocket> websocket = new ArrayList<>();
 
 	private final long intents;
 	private int shards = 1;
-	private String gatewayUrl = "";
 
 	public DiscordMinimal(long[] intents)
 	{
@@ -39,7 +39,6 @@ public class DiscordMinimal
 
 	private void startBot(DiscordGatewayBotInfo gatewayInfo)
 	{
-		this.gatewayUrl = gatewayInfo.url;
 		this.shards = gatewayInfo.shards;
 
 		int numShards = gatewayInfo.sessionStartLimit.maxConcurrency;
@@ -50,7 +49,7 @@ public class DiscordMinimal
 				int startIndex = this.websocket.size();
 				int max = Math.min(numShards, this.shards - startIndex);
 				for(int i = 0; i < max; i++)
-					this.initGatewaySocket(this.gatewayUrl, startIndex + i, numShards);
+					this.initGatewaySocket(gatewayInfo.url, startIndex + i, numShards);
 
 				if(this.websocket.size() == this.shards)
 					return;
@@ -70,7 +69,7 @@ public class DiscordMinimal
 	{
 		try
 		{
-			DiscordWebSocket ws = new DiscordWebSocket(this, gatewayUrl + "/?v=8&encoding=json", intents, shardId, numShards);
+			DiscordWebSocket ws = new DiscordWebSocket(this, gatewayUrl + "/?v=" + API_VERSION + "&encoding=json", intents, shardId, numShards);
 			this.websocket.add(ws);
 			ws.connect();
 

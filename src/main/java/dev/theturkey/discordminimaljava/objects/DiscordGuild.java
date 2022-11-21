@@ -24,8 +24,20 @@ public class DiscordGuild
 	 */
 	@SerializedName("icon_hash")
 	public String iconHash;
-	// splash	?string	splash hash
-	// discovery_splash	?string	discovery splash hash; only present for guilds with the "DISCOVERABLE" feature
+
+	/**
+	 * OPTIONAL
+	 * Splash hash
+	 */
+	public String splash;
+
+	/**
+	 * OPTIONAL
+	 * Discovery splash hash; only present for guilds with the "DISCOVERABLE" feature
+	 */
+	@SerializedName("discovery_splash")
+	public String discoverySplash;
+
 	/**
 	 * id of owner
 	 */
@@ -39,7 +51,12 @@ public class DiscordGuild
 	// verification_level	integer	verification level required for the guild
 	// default_message_notifications	integer	default message notifications level
 	// explicit_content_filter	integer	explicit content filter level
-	//public roles: DiscordRole[] = [];            // Roles in the guild
+
+	/**
+	 * Roles in the guild
+	 */
+	public List<DiscordRole> roles = new ArrayList<>();
+
 	// emojis	array of emoji objects	custom guild emojis
 	// features	array of guild feature strings	enabled guild features
 	// mfa_level	integer	required MFA level for the guild
@@ -48,14 +65,32 @@ public class DiscordGuild
 	// system_channel_flags	integer	system channel flags
 	// rules_channel_id	?snowflake	the id of the channel where Community guilds can display rules and/or guidelines
 	// joined_at? *	ISO8601 timestamp	when this guild was joined at
-	// large? *	boolean	true if this is considered a large guild
+
+	/**
+	 * OPTIONAL
+	 * True if this is considered a large guild
+	 */
+	public boolean large;
+
 	/**
 	 * True if this guild is unavailable due to an outage
 	 */
 	public boolean unavailable;
-	// member_count? *	integer	total number of members in this guild
+
+	/**
+	 * OPTIONAL
+	 * Total number of members in this guild
+	 */
+	@SerializedName("member_count")
+	public int memberCount;
+
 	// voice_states? *	array of partial voice state objects	states of members currently in voice channels; lacks the guild_id key
-	// members? *	array of guild member objects	users in the guild
+
+	/**
+	 * OPTIONAL
+	 * Users in the guild
+	 */
+	public List<DiscordGuildMember> members = new ArrayList<>();
 
 	/**
 	 * Channels in the guild
