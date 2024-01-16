@@ -7,7 +7,7 @@ public class DiscordActionRow extends DiscordComponent
 	 */
 	public DiscordComponent[] components;
 
-	public DiscordActionRow(DiscordComponent[] components)
+	public DiscordActionRow(DiscordComponent... components)
 	{
 		super(DiscordComponentType.ACTION_ROW);
 		this.components = components;

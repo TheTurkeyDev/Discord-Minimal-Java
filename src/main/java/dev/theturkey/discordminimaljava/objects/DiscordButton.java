@@ -15,7 +15,7 @@ public class DiscordButton extends DiscordComponent
 	 */
 	public String label;
 
-	//public emoji?	partial emoji	name, id, and animated
+	public DiscordEmoji emoji;
 
 	/**
 	 * A developer-defined identifier for the button, max 100 characters

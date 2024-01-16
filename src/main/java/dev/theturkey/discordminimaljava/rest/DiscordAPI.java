@@ -290,10 +290,27 @@ public class DiscordAPI
 		return apiResp;
 	}
 
+	public static DiscordAPIResponse<DiscordMessage> getMessage(String channelId, String messageId)
+	{
+		DiscordAPIResponse<DiscordMessage> apiResp = new DiscordAPIResponse<>();
+		sendRestCall("channels/" + channelId + "/messages/", messageId, "GET")
+				.onResponse((code, body) -> apiResp.resolveCall(getResponseObj(code, body, DiscordMessage.class)));
+		return apiResp;
+	}
+
 	public static DiscordAPIResponse<DiscordMessage> createMessage(String channelId, DiscordMessageCreate message)
 	{
 		DiscordAPIResponse<DiscordMessage> apiResp = new DiscordAPIResponse<>();
 		sendRestCall("channels/" + channelId + "/messages", "", "POST", GSON.toJson(message)).onResponse((code, body) ->
+				apiResp.resolveCall(getResponseObj(code, body, DiscordMessage.class)));
+
+		return apiResp;
+	}
+
+	public static DiscordAPIResponse<DiscordMessage> editMessage(String channelId, String messageId, DiscordMessageEdit message)
+	{
+		DiscordAPIResponse<DiscordMessage> apiResp = new DiscordAPIResponse<>();
+		sendRestCall("channels/" + channelId + "/messages/", messageId, "PATCH", GSON.toJson(message)).onResponse((code, body) ->
 				apiResp.resolveCall(getResponseObj(code, body, DiscordMessage.class)));
 
 		return apiResp;
@@ -339,11 +356,7 @@ public class DiscordAPI
 		editMessage.embeds = new DiscordEmbed[]{embed};
 		editMessage.components = components;
 
-		DiscordAPIResponse<DiscordMessage> apiResp = new DiscordAPIResponse<>();
-		sendRestCall("channels/" + channelId + "/messages/", messageId, "PATCH", GSON.toJson(editMessage)).onResponse((code, body) ->
-				apiResp.resolveCall(getResponseObj(code, body, DiscordMessage.class)));
-
-		return apiResp;
+		return editMessage(channelId, messageId, editMessage);
 	}
 
 	public static DiscordAPIResponse<DiscordMessage> editEmbed(String channelId, String messageId, DiscordEmbed embed)
